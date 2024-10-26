@@ -1,0 +1,13 @@
+{
+  "name": "My Memory",
+  "icons": [
+    {
+      "src": "./favicon.webp",
+      "type": "image/webp",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "prefer_related_applications": false
+}

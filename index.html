@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="Simple website to play a game of memory"/>
+    <title>Play memory</title>
+    <link rel="stylesheet" href="./style.css"/>
+    <link rel="manifest" href="./manifest.json"/>
+    <link rel="icon" type="image/webp" href="./favicon.webp">
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("sw.js")
+        }
+    </script>
+    <script type="module" src="./main.js" defer></script>
+</head>
+<body>
+<header class="header">
+    <h1 class="title">My memory</h1>
+    <div class="control-buttons">
+        <button type="button" class="fullscreen-btn" aria-label="activate full screen mode"
+                title="activate full screen mode"
+                aria-pressed="false">&#x26F6;
+        </button>
+        <div class="dark-mode-toggle">
+            <label>
+                <input type='checkbox' aria-label="use light mode">
+                <span class='slider'></span>
+            </label>
+        </div>
+    </div>
+</header>
+<main class="main">
+</main>
+</body>
+</html>
