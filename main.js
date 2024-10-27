@@ -2,7 +2,7 @@ function throwError(message) {
     throw new Error(message)
 }
 
-function createElement(tagName, cssClasses, attributes) {
+function createElement(tagName, cssClasses, attributes, children = []) {
     const element = document.createElement(tagName)
     for (const cssClass of cssClasses) {
         element.classList.add(cssClass)
@@ -10,7 +10,12 @@ function createElement(tagName, cssClasses, attributes) {
     for (const [key, value] of Object.entries(attributes)) {
         element.setAttribute(key, String(value))
     }
+    element.append(...children)
     return element
+}
+
+function createTextNode(text) {
+    return document.createTextNode(text)
 }
 
 function createCardElement({imageSrc, alt}) {
@@ -85,6 +90,13 @@ function createCardSet(cardImageSet, cardCount) {
     return shuffle(cards)
 }
 
+function showAllLevelsCompletedCelebration(rootElement) {
+    const successTitle = createElement('h2', ['success-title'], {}, [createTextNode('Awesome!')])
+    const successMessage = createElement('p', ['success-details'], {}, [createTextNode('You finished all levels of this memory game.')])
+    const successBox = createElement('div', ['success-box'], {}, [successTitle, successMessage])
+    rootElement.replaceChildren(successBox)
+}
+
 function startNewGame(rootElement, {levels, cardImageSet}, level = 0) {
     const cardSet = createCardSet(cardImageSet, levels[level])
     const visibleCards = []
@@ -100,7 +112,11 @@ function startNewGame(rootElement, {levels, cardImageSet}, level = 0) {
                     solvedCards.push(a, b)
                     visibleCards.length = 0
                     if (solvedCards.length === cardSet.length) {
-                        setTimeout(() => startNewGame(rootElement, {levels, cardImageSet}, level + 1), 1000)
+                        if (level < levels.length - 1) {
+                            setTimeout(() => startNewGame(rootElement, {levels, cardImageSet}, level + 1), 1000)
+                        } else {
+                            setTimeout(() => showAllLevelsCompletedCelebration(rootElement), 1000)
+                        }
                     }
                 } else {
                     setTimeout(() => {
@@ -141,20 +157,34 @@ async function preloadImages(mainElement, imageUrls) {
     return true
 }
 
+function getMainElement() {
+    return document.querySelector('.main');
+}
+
+function getControlAreaElement() {
+    return document.querySelector('.control-area');
+}
+
 async function initGame() {
     const cardSets = {
         trafficSigns: Array.from({length: 105}).map((_, idx) => `./images/traffic-signs/${idx}.webp`)
     }
     const levels = [4, 8, 16, 24, 36, 48, 64]
-    const mainElement = document.querySelector('.main')
+    const mainElement = getMainElement()
 
     if (await preloadImages(mainElement, ['./images/back-side.webp', ...Object.values(cardSets)].flat())) {
         startNewGame(mainElement, {levels, cardImageSet: cardSets.trafficSigns})
     }
 }
 
-function initFullscreenButton() {
-    const fullscreenBtn = document.querySelector('.fullscreen-btn')
+function createFullscreenButton() {
+    const title = 'activate full screen mode'
+    const fullscreenBtn = createElement('button', ['fullscreen-btn'], {
+        title,
+        'aria-label': title,
+        'aria-pressed': 'false',
+        type: 'button'
+    }, [createTextNode('⛶')])
     fullscreenBtn.addEventListener('click', async () => {
         if (document.fullscreenElement) {
             fullscreenBtn.setAttribute('aria-pressed', 'false')
@@ -164,6 +194,7 @@ function initFullscreenButton() {
             await document.body.requestFullscreen()
         }
     })
+    return fullscreenBtn
 }
 
 function isDarkModePreferred() {
@@ -185,14 +216,47 @@ function setTheme(isDarkMode) {
     }
 }
 
-function initDarkModeToggle() {
-    const darkModeSwitch = document.querySelector('.dark-mode-toggle input')
-    darkModeSwitch.addEventListener('change', () => setTheme(!darkModeSwitch.checked))
+function createDarkModeToggle() {
+    const checkbox = createElement('input', [], {type: 'checkbox', role: 'switch', 'aria-label': 'use light mode'})
+    const slider = createElement('span', ['slider'], {})
+    const label = createElement('label', [], {}, [checkbox, slider])
+    const darkModeToggle = createElement('div', ['dark-mode-toggle'], {}, [label])
+    checkbox.addEventListener('change', () => setTheme(!checkbox.checked))
     setTheme(isDarkModePreferred())
-    darkModeSwitch.checked = !isDarkModePreferred()
+    checkbox.checked = !isDarkModePreferred()
+    return darkModeToggle
 }
 
-initFullscreenButton()
-initDarkModeToggle()
-await initGame()
+function initControlArea() {
+    const fullscreenBtn = createFullscreenButton()
+    const darkModeToggle = createDarkModeToggle()
+    const controlArea = getControlAreaElement()
+    controlArea.append(fullscreenBtn, darkModeToggle)
+}
 
+function showError(message) {
+    const mainElement = getMainElement()
+    const errorTitle = createElement('h2', ['error-title'], {}, [createTextNode('Error')])
+    const errorMessage = createElement('p', ['error-details'], {}, [createTextNode(message)])
+    const errorBox = createElement('div', ['error-box'], {}, [errorTitle, errorMessage])
+    mainElement.replaceChildren(errorBox)
+}
+
+function handleErrorEvent({error, lineno, filename}) {
+    showError(`${error.toString()} (caused by ${filename} in line ${lineno})`)
+}
+
+function registerGlobalErrorHandler() {
+    globalThis.addEventListener('error', handleErrorEvent)
+}
+
+async function init() {
+    registerGlobalErrorHandler()
+    if ("serviceWorker" in navigator) {
+        await navigator.serviceWorker.register("sw.js")
+    }
+    initControlArea()
+    await initGame()
+}
+
+await init()
