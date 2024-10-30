@@ -16,7 +16,6 @@ This project is a very simple implementation of the memory game
 - in landscape viewport content scrolls vertically instead of scaling down
 - add github link to repo
 - add level selector with start button
-- add retry button on failed preloading
 
 ## Use website locally
 

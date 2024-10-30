@@ -134,7 +134,12 @@ function startNewGame(rootElement, {levels, cardImageSet}, level = 0) {
 }
 
 async function preloadImage(imageUrl) {
-    return fetch(imageUrl).then(response => response.ok ? response : throwError(`Loading ${imageUrl} failed with status code ${response.status}`))
+    return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.onload = () => resolve(img)
+        img.onerror = () => reject(new Error(`Loading ${imageUrl} failed`))
+        img.src = imageUrl
+    })
 }
 
 async function preloadImages(mainElement, imageUrls) {
