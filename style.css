@@ -56,6 +56,11 @@ button {
     cursor: pointer;
 }
 
+button,
+[type='button'] {
+    -webkit-appearance: button;
+}
+
 *:focus-visible {
     outline: 3px solid Highlight;
     box-shadow: 0 0 0 5px Canvas;
