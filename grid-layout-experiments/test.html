@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Play memory</title>
+    <link rel="stylesheet" href="../style.css"/>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        tr {
+            display: flex;
+        }
+
+        td {
+            aspect-ratio: 1 / 1;
+            width: 100%;
+            min-width: 50px;
+            max-width: 400px;
+            display: flex;
+            background-color: cadetblue;
+            border: 1px solid black;
+        }
+
+        button {
+            width: 100%;
+            background-color: #721c24;
+            background-image: url("../images/back-side.webp");
+            background-size: cover;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+    </style>
+</head>
+<body>
+    <table role="grid">
+        <tr role="row"><td role="gridcell"><button onclick="switchBackground(this)">1</button></td><td role="gridcell"><button onclick="switchBackground(this)">2</button></td><td role="gridcell"><button onclick="switchBackground(this)">3</button></td></tr>
+        <tr role="row"><td role="gridcell"><button onclick="switchBackground(this)">4</button></td><td role="gridcell"><button onclick="switchBackground(this)">5</button></td><td role="gridcell"><button onclick="switchBackground(this)">6</button></td></tr>
+        <tr role="row"><td role="gridcell"><button onclick="switchBackground(this)">7</button></td><td role="gridcell"><button onclick="switchBackground(this)">8</button></td><td role="gridcell"><button onclick="switchBackground(this)">9</button></td></tr>
+        <tr role="row"><td role="gridcell"><button onclick="switchBackground(this)">10</button></td><td role="gridcell"><button onclick="switchBackground(this)">11</button></td><td role="gridcell"><button onclick="switchBackground(this)">12</button></td></tr>
+    </table>
+<script>
+    function switchBackground(target) {
+        console.log()
+        target.style.backgroundImage = "url('./images/traffic-signs/42.webp')";
+    }
+</script>
+</body>
+</html>
