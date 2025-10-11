@@ -7,9 +7,10 @@ path="$1"
 ext="$2"
 files="${path}/*.${ext}"
 
-# cwebp docu: https://developers.google.com/speed/webp/docs/cwebp?hl=de
+# cwebp documentation: https://developers.google.com/speed/webp/docs/cwebp?hl=de
+# install cwebp via `sudo apt install webp`
 for file in $files
 do
   filename="${file##*/}"
-  magick "$file" -quality 90 -define webp:lossless=true "${path}/${filename%.*}.webp"
+  cwebp -short -q 90 "$file" -o "${path}/${filename%.*}.webp"
 done

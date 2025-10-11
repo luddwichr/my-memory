@@ -2,7 +2,7 @@ function throwError(message) {
     throw new Error(message)
 }
 
-function createElement(tagName, cssClasses, attributes, children = []) {
+function createElement(tagName, cssClasses, attributes, children = [], eventHandlers = {}) {
     const element = document.createElement(tagName)
     for (const cssClass of cssClasses) {
         element.classList.add(cssClass)
@@ -11,11 +11,19 @@ function createElement(tagName, cssClasses, attributes, children = []) {
         element.setAttribute(key, String(value))
     }
     element.append(...children)
+    for (const [eventName, handler] of Object.entries(eventHandlers)) {
+        element.addEventListener(eventName, handler)
+    }
     return element
 }
 
 function createTextNode(text) {
     return document.createTextNode(text)
+}
+
+function replaceMainElementContent(elements) {
+    const mainElement = document.querySelector('.main')
+    mainElement.replaceChildren(elements)
 }
 
 function createCardElement({imageSrc, alt}) {
@@ -27,13 +35,11 @@ function createCardBackSideElement() {
 }
 
 function createCellElement(card, cellClickHandler) {
-    const cellElement = createElement('button', ['cell', 'card-hidden'], {
-        'aria-label': `Card ${card.id}`,
-        'data-id': card.id
-    })
-    cellElement.append(createCardBackSideElement())
-    cellElement.addEventListener('click', () => cellClickHandler(card))
-    return cellElement
+    return createElement('button', ['cell', 'card-hidden'], {
+            'aria-label': `Card ${card.id}`,
+            'data-id': card.id
+        }, [createCardBackSideElement()],
+        {click: () => cellClickHandler(card)})
 }
 
 function toggleCardVisibility(card) {
@@ -46,25 +52,10 @@ function toggleCardVisibility(card) {
 }
 
 function createGridElement(cardSet, cellClickHandler) {
-    const gridElement = createElement('div', ['grid'], {})
+    const cellElements = cardSet.map((card, cardIdx) => createCellElement(cardSet[cardIdx], cellClickHandler))
+    const gridElement = createElement('div', ['grid'], {}, cellElements)
     const cols = Math.trunc(Math.sqrt(cardSet.length))
-    let rows = Math.ceil(Math.sqrt(cardSet.length))
-    if (rows * cols < cardSet.length) {
-        rows += 1
-    }
-    gridElement.style.gridTemplateRows = `repeat(${rows}, 1fr)`
     gridElement.style.gridTemplateColumns = `repeat(${cols}, 1fr)`
-    const cellElements = []
-    for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-            const cardIdx = row * cols + col
-            if (cardIdx === cardSet.length) {
-                break
-            }
-            cellElements.push(createCellElement(cardSet[cardIdx], cellClickHandler))
-        }
-    }
-    gridElement.append(...cellElements)
     return gridElement
 }
 
@@ -90,15 +81,30 @@ function createCardSet(cardImageSet, cardCount) {
     return shuffle(cards)
 }
 
-function showAllLevelsCompletedCelebration(rootElement) {
-    const successTitle = createElement('h2', ['success-title'], {}, [createTextNode('Awesome!')])
-    const successMessage = createElement('p', ['success-details'], {}, [createTextNode('You finished all levels of this memory game.')])
-    const successBox = createElement('div', ['success-box'], {}, [successTitle, successMessage])
-    rootElement.replaceChildren(successBox)
+function createConfettiContainer() {
+    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#ff1493']
+    const confettiCount = 500
+    const confettiElements = [...Array(confettiCount)].map(() =>  {
+        const confetti = createElement('div', ['confetti'], {})
+        confetti.style.left = Math.random() * 100 + '%'
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]
+        confetti.style.animationDelay = Math.random() * 3 + 's'
+        confetti.style.animationDuration = (Math.random() * 3 + 2) + 's'
+        return confetti
+    })
+    return createElement('div', ['confetti-container'], {}, confettiElements)
 }
 
-function startNewGame(rootElement, {levels, cardImageSet}, level = 0) {
-    const cardSet = createCardSet(cardImageSet, levels[level])
+function showAllLevelsCompletedCelebration() {
+    const successTitle = createElement('h2', ['success-title'], {}, [createTextNode('Awesome!')])
+    const successMessage = createElement('p', ['success-details'], {}, [createTextNode('You finished all levels of this memory game.')])
+    const confettiContainer = createConfettiContainer()
+    const successBox = createElement('div', ['success-box'], {}, [successTitle, successMessage, confettiContainer])
+    replaceMainElementContent(successBox)
+}
+
+function startNewGame({cards, levels}, level = 0) {
+    const cardSet = createCardSet(cards, levels[level])
     const visibleCards = []
     const solvedCards = []
 
@@ -113,9 +119,9 @@ function startNewGame(rootElement, {levels, cardImageSet}, level = 0) {
                     visibleCards.length = 0
                     if (solvedCards.length === cardSet.length) {
                         if (level < levels.length - 1) {
-                            setTimeout(() => startNewGame(rootElement, {levels, cardImageSet}, level + 1), 1000)
+                            setTimeout(() => startNewGame({levels, cards}, level + 1), 1000)
                         } else {
-                            setTimeout(() => showAllLevelsCompletedCelebration(rootElement), 1000)
+                            setTimeout(() => showAllLevelsCompletedCelebration(), 1000)
                         }
                     }
                 } else {
@@ -130,7 +136,7 @@ function startNewGame(rootElement, {levels, cardImageSet}, level = 0) {
     }
 
     const gridElement = createGridElement(cardSet, onCellClick)
-    rootElement.replaceChildren(gridElement)
+    replaceMainElementContent(gridElement)
 }
 
 async function preloadImage(imageUrl) {
@@ -142,64 +148,54 @@ async function preloadImage(imageUrl) {
     })
 }
 
-async function preloadImages(mainElement, imageUrls) {
-    const loadingIndicator = createElement('div', ['loading-box'], {})
-    const loadingStatus = createElement('p', ['loading-status'], {})
-    loadingStatus.textContent = 'Loading images...'
+async function preloadImages(imageUrls) {
+    const loadingStatus = createElement('p', ['loading-status'], {}, [createTextNode('Loading images...')])
     const spinner = createElement('div', ['spinner'], {})
-    loadingIndicator.append(loadingStatus, spinner)
-    mainElement.replaceChildren(loadingIndicator)
+    const loadingIndicator = createElement('div', ['loading-box'], {}, [loadingStatus, spinner])
+    replaceMainElementContent(loadingIndicator)
 
     try {
         await Promise.all(imageUrls.map(preloadImage))
     } catch (error) {
         loadingStatus.textContent = 'Failed to load images!'
-        const errorDetails = createElement('p', ['error-details'], {})
-        errorDetails.textContent = error.toString()
+        const errorDetails = createElement('p', ['error-details'], {}, [createTextNode(error.toString())])
         loadingIndicator.replaceChild(errorDetails, spinner)
         return false
     }
     return true
 }
 
-function getMainElement() {
-    return document.querySelector('.main');
-}
-
-function getControlAreaElement() {
-    return document.querySelector('.control-area');
-}
-
-async function initGame() {
-    const cardSets = {
-        trafficSigns: Array.from({length: 105}).map((_, idx) => `./images/traffic-signs/${idx}.webp`)
-    }
-    const levels = [4, 8, 16, 24, 36, 48, 64]
-    const mainElement = getMainElement()
-
-    if (await preloadImages(mainElement, ['./images/back-side.webp', ...Object.values(cardSets)].flat())) {
-        startNewGame(mainElement, {levels, cardImageSet: cardSets.trafficSigns})
-    }
-}
+const cardSets = [
+    {
+        name: 'Traffic Signs',
+        cards: Array.from({length: 105}).map((_, idx) => `./images/traffic-signs/${idx}.webp`),
+        levels: [4, 8, 16, 24, 36, 48, 64]
+    },
+    {
+        name: 'Outer space',
+        cards: Array.from({length: 32}).map((_, idx) => `./images/outer-space/${idx}.webp`),
+        levels: [4, 8, 16, 24, 32]
+    },
+]
 
 function createFullscreenButton() {
     const title = 'activate full screen mode'
-    const fullscreenBtn = createElement('button', ['fullscreen-btn'], {
+    return createElement('button', ['fullscreen-btn'], {
         title,
         'aria-label': title,
         'aria-pressed': 'false',
         type: 'button'
-    }, [createTextNode('⛶')])
-    fullscreenBtn.addEventListener('click', async () => {
-        if (document.fullscreenElement) {
-            fullscreenBtn.setAttribute('aria-pressed', 'false')
-            await document.exitFullscreen()
-        } else {
-            fullscreenBtn.setAttribute('aria-pressed', 'true')
-            await document.body.requestFullscreen()
+    }, [createTextNode('⛶')], {
+        click: async (event) => {
+            if (document.fullscreenElement) {
+                event.target.setAttribute('aria-pressed', 'false')
+                await document.exitFullscreen()
+            } else {
+                event.target.setAttribute('aria-pressed', 'true')
+                await document.body.requestFullscreen()
+            }
         }
     })
-    return fullscreenBtn
 }
 
 function isDarkModePreferred() {
@@ -222,29 +218,78 @@ function setTheme(isDarkMode) {
 }
 
 function createDarkModeToggle() {
-    const checkbox = createElement('input', [], {type: 'checkbox', role: 'switch', 'aria-label': 'use light mode'})
+    setTheme(isDarkModePreferred())
+    const checkbox = createElement('input', [], {
+        type: 'checkbox',
+        role: 'switch',
+        'aria-label': 'Toggle dark mode',
+    }, [], {
+        click: (event) => {setTheme(!event.target.checked)}
+    })
+    checkbox.checked = !isDarkModePreferred()
     const slider = createElement('span', ['slider'], {})
     const label = createElement('label', [], {}, [checkbox, slider])
-    const darkModeToggle = createElement('div', ['dark-mode-toggle'], {}, [label])
-    checkbox.addEventListener('change', () => setTheme(!checkbox.checked))
-    setTheme(isDarkModePreferred())
-    checkbox.checked = !isDarkModePreferred()
-    return darkModeToggle
+    return createElement('div', ['dark-mode-toggle'], {}, [label])
+}
+
+function dispatchCloseDialogEvent(self) {
+    self.dispatchEvent(new CustomEvent('closeDialog', {bubbles: true}))
+}
+
+function showStartGameDialog() {
+    const title = createElement('h2', ['dialog-title'], {}, [createTextNode('Start a new game')])
+    const closeButton = createElement('button', ['dialog-close-btn'], {
+        type: 'button',
+        'aria-label': 'Cancel'
+    }, [createTextNode('✕')], {
+        click: (event) => dispatchCloseDialogEvent(event.target)
+    })
+    const header = createElement('div', ['dialog-header'], {}, [title, closeButton])
+    const gameButtons = cardSets.map(cardSet => {
+        return createElement('button', ['dialog-game-btn'], {
+            type: 'button'
+        }, [createTextNode(cardSet.name)], {
+            click: (event) => {
+                dispatchCloseDialogEvent(event.target)
+                startNewGame(cardSet)
+            }
+        })
+    })
+    const buttonContainer = createElement('div', ['dialog-game-btn-container'], {}, gameButtons)
+    const dialog = createElement('dialog', ['start-game-dialog'], {tabIndex: "-1"}, [header, buttonContainer], {
+        close: (event) => {
+            if (event.target === dialog) {
+                dispatchCloseDialogEvent(event.target)
+            }
+        },
+        closeDialog: function() {
+            this.close()
+            this.remove()
+        }
+    })
+    document.body.append(dialog)
+    dialog.showModal()
+}
+
+function newGameDialogButton() {
+    return createElement('button', ['new-game-btn'], {type: 'button'}, [createTextNode('New Game')], {
+        click: showStartGameDialog
+    })
 }
 
 function initControlArea() {
     const fullscreenBtn = createFullscreenButton()
     const darkModeToggle = createDarkModeToggle()
-    const controlArea = getControlAreaElement()
-    controlArea.append(fullscreenBtn, darkModeToggle)
+    const newGameBtn = newGameDialogButton()
+    const controlArea = document.querySelector('.control-area')
+    controlArea.append(fullscreenBtn, darkModeToggle, newGameBtn)
 }
 
 function showError(message) {
-    const mainElement = getMainElement()
     const errorTitle = createElement('h2', ['error-title'], {}, [createTextNode('Error')])
     const errorMessage = createElement('p', ['error-details'], {}, [createTextNode(message)])
     const errorBox = createElement('div', ['error-box'], {}, [errorTitle, errorMessage])
-    mainElement.replaceChildren(errorBox)
+    replaceMainElementContent(errorBox)
 }
 
 function handleErrorEvent({error, lineno, filename}) {
@@ -261,7 +306,9 @@ async function init() {
         await navigator.serviceWorker.register("sw.js")
     }
     initControlArea()
-    await initGame()
+    if (await preloadImages(['./images/back-side.webp', ...cardSets.map(cardSet => cardSet.cards).flat()])) {
+        startNewGame(cardSets[0])
+    }
 }
 
 await init()

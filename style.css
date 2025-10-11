@@ -2,10 +2,12 @@
     --size-s: 4px;
     --size-m: 8px;
     --size-l: 16px;
-    --size-xl: 32px;
+    --size-xl: 24px;
+    --size-xxl: 32px;
     --gray: #888;
     --dark: #121212;
     --primary: #3700b3;
+    --error: #721c24;
     --light: rgba(255 255 255 / 87%);
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
@@ -16,6 +18,9 @@
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -moz-osx-font-smoothing: grayscale;
+    -moz-text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
 }
 
 .light {
@@ -29,12 +34,6 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-}
-
-html {
-    -moz-text-size-adjust: none;
-    -webkit-text-size-adjust: none;
-    text-size-adjust: none;
 }
 
 p,
@@ -51,8 +50,15 @@ h3 {
     text-wrap: balance;
 }
 
-button {
+p {
+    text-wrap: pretty;
+}
+
+input, button {
     font: inherit;
+}
+
+button {
     cursor: pointer;
 }
 
@@ -75,13 +81,12 @@ body {
     display: flex;
     flex-flow: column;
     padding: var(--size-m);
-    gap: var(--size-xl);
+    gap: var(--size-xxl);
 }
 
 .header {
     display: flex;
     flex-wrap: wrap;
-    flex: 0 1 auto;
     column-gap: var(--size-l);
     row-gap: var(--size-m);
     align-items: center;
@@ -102,7 +107,7 @@ button:hover, button:focus {
     border: 1px inset var(--gray);
 }
 
-.light button {
+.light button, .light dialog {
     color: var(--dark);
     background-color: var(--light);
 }
@@ -117,12 +122,12 @@ button:hover, button:focus {
 .fullscreen-btn {
     height: 48px;
     width: 48px;
-    font-size: 24px;
+    font-size: var(--size-l);
     border-radius: var(--size-m);
 }
 
 .fullscreen-btn:active {
-    font-size: 28px;
+    font-size: var(--size-xl);
 }
 
 .dark-mode-toggle {
@@ -137,7 +142,7 @@ button:hover, button:focus {
     width: 100%;
     height: 100%;
     background-color: var(--dark);
-    border-radius: 24px;
+    border-radius: var(--size-l);
     cursor: pointer;
 }
 
@@ -161,7 +166,7 @@ button:hover, button:focus {
     position: absolute;
     width: 100%;
     height: 100%;
-    border-radius: 24px;
+    border-radius: var(--size-l);
     transition: 0.3s;
     border: 1px outset var(--gray);
 }
@@ -190,6 +195,12 @@ input:checked ~ .slider::before {
     transform: translateX(48px);
 }
 
+.new-game-btn {
+    padding: var(--size-m);
+    font-weight: bold;
+    border-radius: var(--size-l);
+}
+
 .main {
     flex: 1 1 auto;
     display: flex;
@@ -204,10 +215,14 @@ input:checked ~ .slider::before {
 
 .cell {
     display: block;
-    height: 100%;
-    width: 100%;
+    min-height: 50px;
+    min-width: 50px;
     max-height: 150px;
     max-width: 150px;
+}
+
+.cell:not(.card-hidden) {
+    pointer-events: none;
 }
 
 .card {
@@ -221,7 +236,7 @@ input:checked ~ .slider::before {
     background-color: #f8d7da;
     border: 2px solid #f5c6cb;
     border-radius: var(--size-m);
-    color: #721c24;
+    color: var(--error);
     display: flex;
     flex-direction: column;
     gap: var(--size-m);
@@ -230,7 +245,7 @@ input:checked ~ .slider::before {
 }
 
 .error-title {
-    border-bottom: 1px solid #721c24;
+    border-bottom: 1px solid var(--error);
 }
 
 .success-box {
@@ -296,5 +311,75 @@ input:checked ~ .slider::before {
     }
     100% {
         transform: translate3d(-50%, -50%, 0) rotate(360deg);
+    }
+}
+
+.start-game-dialog {
+    border-radius: var(--size-m);
+    margin: auto;
+}
+
+dialog::backdrop {
+    background-color: rgba(0 0 0 / 90%);
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    padding: var(--size-l);
+    gap: var(--size-l);
+    border-bottom: 1px solid var(--light);
+}
+
+.dialog-close-btn {
+    min-width: 48px;
+    min-height: 48px;
+    max-width: 48px;
+    max-height: 48px;
+    border-radius: var(--size-m);
+}
+
+.dialog-game-btn-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-l);
+    padding: var(--size-l);
+}
+
+.dialog-game-btn {
+    padding: var(--size-l);
+    border-radius: var(--size-m);
+}
+
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    opacity: 0;
+    animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        top: -10px;
+        opacity: 1;
+        transform: translateX(0) rotateZ(0deg);
+    }
+    100% {
+        top: 100vh;
+        opacity: 0.7;
+        transform: translateX(calc(var(--random-x, 0) * 100px)) rotateZ(720deg);
     }
 }

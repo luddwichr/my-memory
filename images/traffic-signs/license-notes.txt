@@ -1,7 +1,5 @@
-The images are provided by BAST.
-The images where downloaded on 23.10.2024 from https://www.bast.de/DE/Verkehrstechnik/Fachthemen/v1-verkehrszeichen/vz-download.html
-
-according to the website, the images are for free and traffic signs are not subject to copyright protection.
+The images were downloaded on 23.10.2024 from https://www.bast.de/DE/Verkehrstechnik/Fachthemen/v1-verkehrszeichen/vz-download.html and converted using convert-images.sh.
+According to the BAST website, the images are for free and traffic signs are not subject to copyright protection.
 
 quote:
 "Die Bilder werden kostenfrei zur Verfügung gestellt.
