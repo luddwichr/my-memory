@@ -168,11 +168,13 @@ async function preloadImages(imageUrls) {
 const cardSets = [
     {
         name: 'Traffic Signs',
+        previewImage: './images/traffic-signs/20.webp',
         cards: Array.from({length: 105}).map((_, idx) => `./images/traffic-signs/${idx}.webp`),
         levels: [4, 8, 16, 24, 36, 48, 64]
     },
     {
         name: 'Outer space',
+        previewImage: './images/outer-space/30.webp',
         cards: Array.from({length: 32}).map((_, idx) => `./images/outer-space/${idx}.webp`),
         levels: [4, 8, 16, 24, 32]
     },
@@ -246,9 +248,11 @@ function showStartGameDialog() {
     })
     const header = createElement('div', ['dialog-header'], {}, [title, closeButton])
     const gameButtons = cardSets.map(cardSet => {
+        const previewImage = createElement('img', ['dialog-game-preview-image'], {src: cardSet.previewImage, alt: cardSet.name})
+        const text = createElement('span', [], {}, [createTextNode(cardSet.name)])
         return createElement('button', ['dialog-game-btn'], {
             type: 'button'
-        }, [createTextNode(cardSet.name)], {
+        }, [previewImage, text], {
             click: (event) => {
                 dispatchCloseDialogEvent(event.target)
                 startNewGame(cardSet)

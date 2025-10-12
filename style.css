@@ -349,6 +349,16 @@ dialog::backdrop {
 .dialog-game-btn {
     padding: var(--size-l);
     border-radius: var(--size-m);
+    display: flex;
+    align-items: center;
+    gap: var(--size-m);
+    font-weight: bold;
+}
+
+.dialog-game-preview-image {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
 }
 
 .confetti-container {

@@ -16,10 +16,10 @@ This project is a simple implementation of the memory game
 - in landscape viewport content scrolls vertically instead of scaling down
 - add github link to repo
 - restore game state from local storage to survive reload
-- show preview image in dialog
 - show party image in success message box
 - show error icon in error box
 - crop images to square
+- provide translations
 
 ## Use website locally
 
