@@ -286,6 +286,10 @@ function initControlArea() {
     const darkModeToggle = createDarkModeToggle()
     const newGameBtn = newGameDialogButton()
     const controlArea = document.querySelector('.control-area')
+    controlArea.addEventListener('dblclick', () => {
+      const confettiContainer = createConfettiContainer()
+      document.body.append(confettiContainer)
+    })
     controlArea.append(fullscreenBtn, darkModeToggle, newGameBtn)
 }
 
