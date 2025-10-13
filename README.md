@@ -18,7 +18,6 @@ This project is a simple implementation of the memory game
 - restore game state from local storage to survive reload
 - show party image in success message box
 - show error icon in error box
-- crop images to square
 - provide translations
 
 ## Use website locally
