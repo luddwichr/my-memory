@@ -15,7 +15,6 @@ This project is a simple implementation of the memory game
 - add aria-roles grid/row etc. (maybe switch to table layout?)
 - in landscape viewport content scrolls vertically instead of scaling down
 - add github link to repo
-- restore game state from local storage to survive reload
 - show party image in success message box
 - show error icon in error box
 - provide translations
