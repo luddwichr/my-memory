@@ -340,14 +340,14 @@ dialog::backdrop {
     border-radius: var(--size-m);
 }
 
-.dialog-game-btn-container {
+.dialog-cardset-btn-container {
     display: flex;
     flex-direction: column;
     gap: var(--size-l);
     padding: var(--size-l);
 }
 
-.dialog-game-btn {
+.dialog-cardset-btn {
     padding: var(--size-l);
     border-radius: var(--size-m);
     display: flex;
@@ -356,7 +356,7 @@ dialog::backdrop {
     font-weight: bold;
 }
 
-.dialog-game-preview-image {
+.dialog-cardset-preview-image {
     width: 48px;
     height: 48px;
     object-fit: cover;

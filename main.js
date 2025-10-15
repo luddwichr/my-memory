@@ -30,9 +30,9 @@ function createCardBackSideElement() {
     return createCardElement({imageSrc: './images/back-side.webp', alt: 'card back side'})
 }
 
-function createCellElement(card, cellClickHandler) {
+function createCellElement(card, pos, cellClickHandler) {
     return createElement('button', ['cell', 'card-hidden'], {
-            'aria-label': `Card ${card.id}`,
+            'aria-label': `Card at row ${pos.row}, column ${pos.col}`,
             'data-id': card.id
         }, [createCardBackSideElement()],
         {click: () => cellClickHandler(card)})
@@ -47,10 +47,15 @@ function toggleCardVisibility(card) {
     }
 }
 
-function createGridElement(cardSet, cellClickHandler) {
-    const cellElements = cardSet.map((card, cardIdx) => createCellElement(cardSet[cardIdx], cellClickHandler))
+function createGridElement(cards, cellClickHandler) {
+    const cols = Math.trunc(Math.sqrt(cards.length))
+    const cellElements = cards.map((card, cardIdx) => {
+        const row = Math.trunc(cardIdx / cols)
+        const col = cardIdx % cols
+        const pos = {row, col}
+        return createCellElement(card, pos, cellClickHandler)
+    })
     const gridElement = createElement('div', ['grid'], {}, cellElements)
-    const cols = Math.trunc(Math.sqrt(cardSet.length))
     gridElement.style.gridTemplateColumns = `repeat(${cols}, 1fr)`
     return gridElement
 }
@@ -66,7 +71,7 @@ function shuffle(array) {
     return array
 }
 
-function createCardSet({cards, levels}, level) {
+function createGame({cards, levels}, level) {
     const cardCount = levels[level]
     const pairs = Math.trunc(cardCount / 2)
     const randomCardImages = shuffle([...cards]).slice(0, pairs)
@@ -100,6 +105,23 @@ function showAllLevelsCompletedCelebration() {
     replaceMainElementContent(successBox)
 }
 
+const cardSets = [
+    {
+        id: 'traffic-signs-v1',
+        name: 'Traffic Signs',
+        previewImage: './images/traffic-signs/20.webp',
+        cards: Array.from({length: 105}).map((_, idx) => `./images/traffic-signs/${idx}.webp`),
+        levels: [4, 8, 16, 24, 36, 48, 64]
+    },
+    {
+        id: 'outer-space-v1',
+        name: 'Outer space',
+        previewImage: './images/outer-space/30.webp',
+        cards: Array.from({length: 32}).map((_, idx) => `./images/outer-space/${idx}.webp`),
+        levels: [4, 8, 16, 24, 32]
+    },
+]
+
 function saveGameState(gameState) {
     localStorage.setItem('gameState', JSON.stringify(gameState))
 }
@@ -118,14 +140,14 @@ function clearGameState() {
     localStorage.removeItem('gameState')
 }
 
-function setupGame(game, level, cardSet, initialSolvedCards = []) {
+function setupGame(cardSet, level, cards, initialSolvedCards = []) {
     const visibleCards = []
     const solvedCards = [...initialSolvedCards]
 
     const gameState = {
-        gameId: game.id,
+        cardSetId: cardSet.id,
         level,
-        cardSet,
+        cards,
         solvedCardIds: solvedCards.map(card => card.id)
     }
     saveGameState(gameState)
@@ -141,9 +163,9 @@ function setupGame(game, level, cardSet, initialSolvedCards = []) {
                     visibleCards.length = 0
                     gameState.solvedCardIds = solvedCards.map(card => card.id)
                     saveGameState(gameState)
-                    if (solvedCards.length === cardSet.length) {
-                        if (level < game.levels.length - 1) {
-                            setTimeout(() => startNewGame(game, level + 1), 1000)
+                    if (solvedCards.length === cards.length) {
+                        if (level < cardSet.levels.length - 1) {
+                            setTimeout(() => startNewGame(cardSet, level + 1), 1000)
                         } else {
                             clearGameState()
                             setTimeout(() => showAllLevelsCompletedCelebration(), 1000)
@@ -160,7 +182,7 @@ function setupGame(game, level, cardSet, initialSolvedCards = []) {
         }
     }
 
-    const gridElement = createGridElement(cardSet, onCellClick)
+    const gridElement = createGridElement(cards, onCellClick)
     replaceMainElementContent(gridElement)
 
     for (const card of initialSolvedCards) {
@@ -168,8 +190,8 @@ function setupGame(game, level, cardSet, initialSolvedCards = []) {
     }
 }
 
-function startNewGame(game, level = 0) {
-    setupGame(game, level, createCardSet(game, level))
+function startNewGame(cardSet, level = 0) {
+    setupGame(cardSet, level, createGame(cardSet, level))
 }
 
 function restoreGameState() {
@@ -178,14 +200,14 @@ function restoreGameState() {
         return false
     }
 
-    const {gameId, level, cardSet, solvedCardIds} = savedState
-    const game = cardSets.find(cardSet => cardSet.id === gameId)
-    if (!game) {
+    const {cardSetId, level, cards, solvedCardIds} = savedState
+    const cardSet = cardSets.find(cardSet => cardSet.id === cardSetId)
+    if (!cardSet) {
         return false
     }
 
-    const initialSolvedCards = solvedCardIds.map(id => cardSet.find(card => card.id === id))
-    setupGame(game, level, cardSet, initialSolvedCards)
+    const initialSolvedCards = solvedCardIds.map(id => cards.find(card => card.id === id))
+    setupGame(cardSet, level, cards, initialSolvedCards)
     return true
 }
 
@@ -193,7 +215,7 @@ async function preloadImage(imageUrl) {
     return new Promise((resolve, reject) => {
         const img = new Image()
         img.onload = () => resolve(img)
-        img.onerror = () => reject(new Error(`Loading ${imageUrl} failed`))
+        img.onerror = (error) => reject(new Error(`Loading ${imageUrl} failed.`, {cause: error}))
         img.src = imageUrl
     })
 }
@@ -214,23 +236,6 @@ async function preloadImages(imageUrls) {
     }
     return true
 }
-
-const cardSets = [
-    {
-        id: 'traffic-signs-v1',
-        name: 'Traffic Signs',
-        previewImage: './images/traffic-signs/20.webp',
-        cards: Array.from({length: 105}).map((_, idx) => `./images/traffic-signs/${idx}.webp`),
-        levels: [4, 8, 16, 24, 36, 48, 64]
-    },
-    {
-        id: 'outer-space-v1',
-        name: 'Outer space',
-        previewImage: './images/outer-space/30.webp',
-        cards: Array.from({length: 32}).map((_, idx) => `./images/outer-space/${idx}.webp`),
-        levels: [4, 8, 16, 24, 32]
-    },
-]
 
 function createFullscreenButton() {
     const title = 'activate full screen mode'
@@ -301,13 +306,13 @@ function showStartGameDialog() {
         click: (event) => dispatchCloseDialogEvent(event.target)
     })
     const header = createElement('div', ['dialog-header'], {}, [title, closeButton])
-    const gameButtons = cardSets.map(cardSet => {
-        const previewImage = createElement('img', ['dialog-game-preview-image'], {
+    const cardSetButtons = cardSets.map(cardSet => {
+        const previewImage = createElement('img', ['dialog-cardset-preview-image'], {
             src: cardSet.previewImage,
             alt: cardSet.name
         })
         const text = createElement('span', [], {}, [createTextNode(cardSet.name)])
-        return createElement('button', ['dialog-game-btn'], {
+        return createElement('button', ['dialog-cardset-btn'], {
             type: 'button'
         }, [previewImage, text], {
             click: (event) => {
@@ -316,7 +321,7 @@ function showStartGameDialog() {
             }
         })
     })
-    const buttonContainer = createElement('div', ['dialog-game-btn-container'], {}, gameButtons)
+    const buttonContainer = createElement('div', ['dialog-cardset-btn-container'], {}, cardSetButtons)
     const dialog = createElement('dialog', ['start-game-dialog'], {tabIndex: "-1"}, [header, buttonContainer], {
         close: (event) => {
             if (event.target === dialog) {
