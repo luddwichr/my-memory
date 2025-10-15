@@ -1,4 +1,4 @@
-const VERSION = "v3"
+const VERSION = "v4"
 const CACHE_NAME = `my-memory-${VERSION}`
 const APP_STATIC_RESOURCES = [
     "/index.html",
@@ -39,13 +39,20 @@ self.addEventListener("activate", (event) => {
 
 async function cacheFirst(request) {
     const cache = await getCurrentCache()
-    const cachedResponse = cache.match(request)
+    const cachedResponse = await cache.match(request)
     if (cachedResponse) {
         return cachedResponse
     }
     const response = await fetch(request)
     await cache.put(request, response.clone())
     return response
+}
+
+function createNetworkErrorResponse() {
+     return new Response("Network error", {
+        status: 408,
+        headers: {"Content-Type": "text/plain"},
+    })
 }
 
 async function networkFirst(request) {
@@ -55,15 +62,12 @@ async function networkFirst(request) {
         await cache.put(request, response.clone())
         return response
     } catch {
-        const cachedResponse = cache.match(request)
+        const cachedResponse = await cache.match(request)
         if (cachedResponse) {
             return cachedResponse
         }
     }
-    return new Response("Network error", {
-        status: 408,
-        headers: {"Content-Type": "text/plain"},
-    })
+    return createNetworkErrorResponse()
 }
 
 self.addEventListener("fetch", async (event) => {
