@@ -94,6 +94,8 @@ body {
 
 .title {
     font-size: 1.5rem;
+    height: 48px;
+    align-content: center;
 }
 
 button {
