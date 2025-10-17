@@ -1,12 +1,13 @@
 const VERSION = "v4"
 const CACHE_NAME = `my-memory-${VERSION}`
+const INDEX_HTML_PATH = "./index.html";
 const APP_STATIC_RESOURCES = [
-    "/index.html",
-    "/main.js",
-    "/manifest.json",
-    "/sw.js",
-    "/style.css",
-    "/favicon.webp",
+    INDEX_HTML_PATH,
+    "./main.js",
+    "./manifest.json",
+    "./sw.js",
+    "./style.css",
+    "./favicon.webp",
 ]
 
 async function getCurrentCache() {
@@ -72,7 +73,7 @@ async function networkFirst(request) {
 
 self.addEventListener("fetch", async (event) => {
     if (event.request.mode === "navigate") {
-        event.respondWith(fetch("/index.html").catch(() => caches.match("/index.html")))
+        event.respondWith(fetch(INDEX_HTML_PATH).catch(() => caches.match(INDEX_HTML_PATH)))
     } else {
         if (event.request.destination === "image") {
             event.respondWith(cacheFirst(event.request))
