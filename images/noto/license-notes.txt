@@ -1,0 +1,3 @@
+Images were downloaded on 17.10.2025 from https://github.com/googlefonts/noto-emoji/blob/main/png/512/ and converted using convert-images.sh
+
+License information can be found at https://github.com/googlefonts/noto-emoji/tree/main?tab=readme-ov-file#license

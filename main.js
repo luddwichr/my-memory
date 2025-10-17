@@ -120,6 +120,13 @@ const cardSets = [
         cards: Array.from({length: 32}).map((_, idx) => `./images/outer-space/${idx}.webp`),
         levels: [4, 8, 16, 24, 32]
     },
+    {
+        id: 'noto',
+        name: 'Emojis',
+        previewImage: './images/noto/0.webp',
+        cards: Array.from({length: 20}).map((_, idx) => `./images/noto/${idx}.webp`),
+        levels: [4, 8, 14, 20]
+    }
 ]
 
 function saveGameState(gameState) {
