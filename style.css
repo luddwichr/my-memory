@@ -232,7 +232,7 @@ input:checked ~ .slider::before {
     display: block;
     height: 100%;
     width: 100%;
-    object-fit: cover;
+    object-fit: fill;
 }
 
 .error-box {
@@ -361,7 +361,7 @@ dialog::backdrop {
 .dialog-cardset-preview-image {
     width: 48px;
     height: 48px;
-    object-fit: cover;
+    object-fit: fill;
 }
 
 .confetti-container {

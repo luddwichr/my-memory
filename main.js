@@ -126,7 +126,14 @@ const cardSets = [
         previewImage: './images/noto/0.webp',
         cards: Array.from({length: 20}).map((_, idx) => `./images/noto/${idx}.webp`),
         levels: [4, 8, 14, 20]
-    }
+    },
+    {
+        id: 'country-flags',
+        name: 'Country Flags',
+        previewImage: './images/country-flags/69.svg',
+         cards: Array.from({length: 255}).map((_, idx) => `./images/country-flags/${idx}.svg`),
+        levels: [4, 8, 16, 24, 36, 48, 64]
+    },
 ]
 
 function saveGameState(gameState) {
