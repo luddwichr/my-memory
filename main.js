@@ -17,9 +17,9 @@ function createTextNode(text) {
     return document.createTextNode(text)
 }
 
-function replaceMainElementContent(elements) {
+function replaceMainElementContent(element) {
     const mainElement = document.querySelector('.main')
-    mainElement.replaceChildren(elements)
+    mainElement.replaceChildren(element)
 }
 
 function createCardElement({imageSrc, alt}) {
@@ -32,7 +32,8 @@ function createCardBackSideElement() {
 
 function createCellElement(card, pos, cellClickHandler) {
     return createElement('button', ['cell', 'card-hidden'], {
-            'aria-label': `Card at row ${pos.row}, column ${pos.col}`,
+            'aria-label': `Card at row ${pos.row + 1}, column ${pos.col + 1}`,
+            'aria-pressed': 'false',
             'data-id': card.id
         }, [createCardBackSideElement()],
         {click: () => cellClickHandler(card)})
@@ -41,14 +42,16 @@ function createCellElement(card, pos, cellClickHandler) {
 function toggleCardVisibility(card) {
     const cellElement = document.querySelector(`[data-id="${card.id}"]`)
     if (cellElement.classList.toggle('card-hidden')) {
+        cellElement.setAttribute('aria-pressed', 'false')
         cellElement.replaceChildren(createCardBackSideElement())
     } else {
+        cellElement.setAttribute('aria-pressed', 'true')
         cellElement.replaceChildren(createCardElement(card))
     }
 }
 
 function createGridElement(cards, cellClickHandler) {
-    const cols = Math.trunc(Math.sqrt(cards.length))
+    const cols = Math.round(Math.sqrt(cards.length))
     const cellElements = cards.map((card, cardIdx) => {
         const row = Math.trunc(cardIdx / cols)
         const col = cardIdx % cols
@@ -77,7 +80,7 @@ function createGame({cards, levels}, level) {
     const randomCardImages = shuffle([...cards]).slice(0, pairs)
     const drawnCards = []
     for (const [pair, imageSrc] of randomCardImages.entries()) {
-        const alt = `one of pair ${pair}`
+        const alt = ''
         drawnCards.push({imageSrc, id: String(pair * 2), pair, alt}, {imageSrc, id: String(pair * 2 + 1), pair, alt})
     }
     return shuffle(drawnCards)
@@ -92,9 +95,12 @@ function createConfettiContainer() {
         confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]
         confetti.style.animationDelay = Math.random() * 3 + 's'
         confetti.style.animationDuration = (Math.random() * 3 + 2) + 's'
+        confetti.style.setProperty('--drift', (Math.random() * 200 - 100) + 'px')
         return confetti
     })
-    return createElement('div', ['confetti-container'], {}, confettiElements)
+    const container = createElement('div', ['confetti-container'], {}, confettiElements)
+    setTimeout(() => container.remove(), 8000)
+    return container
 }
 
 function showAllLevelsCompletedCelebration() {
@@ -154,6 +160,10 @@ function clearGameState() {
     localStorage.removeItem('gameState')
 }
 
+function markCardAsAriaDisabled(card) {
+    document.querySelector(`[data-id="${card.id}"]`).setAttribute('aria-disabled', 'true')
+}
+
 function setupGame(cardSet, level, cards, initialSolvedCards = []) {
     const visibleCards = []
     const solvedCards = [...initialSolvedCards]
@@ -174,6 +184,8 @@ function setupGame(cardSet, level, cards, initialSolvedCards = []) {
                 const [a, b] = visibleCards
                 if (a.pair === b.pair) {
                     solvedCards.push(a, b)
+                    markCardAsAriaDisabled(a)
+                    markCardAsAriaDisabled(b)
                     visibleCards.length = 0
                     gameState.solvedCardIds = solvedCards.map(card => card.id)
                     saveGameState(gameState)
@@ -182,7 +194,7 @@ function setupGame(cardSet, level, cards, initialSolvedCards = []) {
                             setTimeout(() => startNewGame(cardSet, level + 1), 1000)
                         } else {
                             clearGameState()
-                            setTimeout(() => showAllLevelsCompletedCelebration(), 1000)
+                            setTimeout(showAllLevelsCompletedCelebration, 1000)
                         }
                     }
                 } else {
@@ -201,6 +213,7 @@ function setupGame(cardSet, level, cards, initialSolvedCards = []) {
 
     for (const card of initialSolvedCards) {
         toggleCardVisibility(card)
+        markCardAsAriaDisabled(card)
     }
 }
 
@@ -220,7 +233,7 @@ function restoreGameState() {
         return false
     }
 
-    const initialSolvedCards = solvedCardIds.map(id => cards.find(card => card.id === id))
+    const initialSolvedCards = solvedCardIds.map(id => cards.find(card => card.id === id)).filter(Boolean)
     setupGame(cardSet, level, cards, initialSolvedCards)
     return true
 }
@@ -253,22 +266,28 @@ async function preloadImages(imageUrls) {
 
 function createFullscreenButton() {
     const title = 'activate full screen mode'
-    return createElement('button', ['fullscreen-btn'], {
+    const button = createElement('button', ['fullscreen-btn'], {
         title,
         'aria-label': title,
         'aria-pressed': 'false',
         type: 'button'
     }, [createTextNode('⛶')], {
-        click: async (event) => {
-            if (document.fullscreenElement) {
-                event.target.setAttribute('aria-pressed', 'false')
-                await document.exitFullscreen()
-            } else {
-                event.target.setAttribute('aria-pressed', 'true')
-                await document.body.requestFullscreen()
+        click: async () => {
+            try {
+                if (document.fullscreenElement) {
+                    await document.exitFullscreen()
+                } else {
+                    await document.body.requestFullscreen()
+                }
+            } catch (error) {
+                console.error('Fullscreen error:', error)
             }
         }
     })
+    document.addEventListener('fullscreenchange', () => {
+        button.setAttribute('aria-pressed', document.fullscreenElement ? 'true' : 'false')
+    })
+    return button
 }
 
 function isDarkModePreferred() {
@@ -284,14 +303,17 @@ function setTheme(isDarkMode) {
     if (isDarkMode) {
         localStorage.setItem('theme', 'dark')
         document.body.classList.remove('light')
+        document.documentElement.style.colorScheme = 'dark'
     } else {
         localStorage.setItem('theme', 'light')
         document.body.classList.add('light')
+        document.documentElement.style.colorScheme = 'light'
     }
 }
 
 function createDarkModeToggle() {
-    setTheme(isDarkModePreferred())
+    const darkModePreferred = isDarkModePreferred()
+    setTheme(darkModePreferred)
     const checkbox = createElement('input', [], {
         type: 'checkbox',
         role: 'switch',
@@ -301,7 +323,7 @@ function createDarkModeToggle() {
             setTheme(!event.target.checked)
         }
     })
-    checkbox.checked = !isDarkModePreferred()
+    checkbox.checked = !darkModePreferred
     const slider = createElement('span', ['slider'], {})
     const label = createElement('label', [], {}, [checkbox, slider])
     return createElement('div', ['dark-mode-toggle'], {}, [label])
@@ -337,14 +359,11 @@ function showStartGameDialog() {
     })
     const buttonContainer = createElement('div', ['dialog-cardset-btn-container'], {}, cardSetButtons)
     const dialog = createElement('dialog', ['start-game-dialog'], {tabIndex: "-1"}, [header, buttonContainer], {
-        close: (event) => {
-            if (event.target === dialog) {
-                dispatchCloseDialogEvent(event.target)
-            }
+        close: () => {
+            dialog.remove()
         },
-        closeDialog: function () {
-            this.close()
-            this.remove()
+        closeDialog: () => {
+            dialog.close()
         }
     })
     document.body.append(dialog)
@@ -387,7 +406,11 @@ function registerGlobalErrorHandler() {
 async function init() {
     registerGlobalErrorHandler()
     if ("serviceWorker" in navigator) {
-        await navigator.serviceWorker.register("sw.js")
+        try {
+            await navigator.serviceWorker.register("sw.js")
+        } catch (error) {
+            console.error('Service worker registration failed:', error)
+        }
     }
     initControlArea()
     if (await preloadImages(['./images/back-side.webp', ...cardSets.map(cardSet => cardSet.cards).flat()])) {

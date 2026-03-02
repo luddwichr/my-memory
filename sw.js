@@ -1,6 +1,6 @@
 const VERSION = "v4"
 const CACHE_NAME = `my-memory-${VERSION}`
-const INDEX_HTML_PATH = "./index.html";
+const INDEX_HTML_PATH = "./index.html"
 const APP_STATIC_RESOURCES = [
     INDEX_HTML_PATH,
     "./main.js",
@@ -44,14 +44,18 @@ async function cacheFirst(request) {
     if (cachedResponse) {
         return cachedResponse
     }
-    const response = await fetch(request)
-    await cache.put(request, response.clone())
-    return response
+    try {
+        const response = await fetch(request)
+        await cache.put(request, response.clone())
+        return response
+    } catch {
+        return createNetworkErrorResponse()
+    }
 }
 
 function createNetworkErrorResponse() {
-     return new Response("Network error", {
-        status: 408,
+    return new Response("Network error", {
+        status: 503,
         headers: {"Content-Type": "text/plain"},
     })
 }
@@ -73,7 +77,7 @@ async function networkFirst(request) {
 
 self.addEventListener("fetch", async (event) => {
     if (event.request.mode === "navigate") {
-        event.respondWith(fetch(INDEX_HTML_PATH).catch(() => caches.match(INDEX_HTML_PATH)))
+        event.respondWith(networkFirst(new Request(INDEX_HTML_PATH)))
     } else {
         if (event.request.destination === "image") {
             event.respondWith(cacheFirst(event.request))

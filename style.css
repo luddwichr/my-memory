@@ -7,8 +7,13 @@
     --gray: #888;
     --dark: #121212;
     --primary: #3700b3;
-    --error: #721c24;
     --light: rgba(255 255 255 / 87%);
+    --error-color: #f48a95;
+    --error-bg: #2d1b1d;
+    --error-border: #5c2d32;
+    --success-color: #7dcf99;
+    --success-bg: #1a2e1e;
+    --success-border: #2d5c36;
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
@@ -26,6 +31,12 @@
 .light {
     color: var(--dark);
     background-color: var(--light);
+    --error-color: #721c24;
+    --error-bg: #f8d7da;
+    --error-border: #f5c6cb;
+    --success-color: #155724;
+    --success-bg: #d4edda;
+    --success-border: #c3e6cb;
 }
 
 *,
@@ -104,7 +115,7 @@ button {
     border: 1px outset var(--gray);
 }
 
-button:hover, button:focus {
+button:hover, button:focus-visible {
     filter: brightness(80%);
     border: 1px inset var(--gray);
 }
@@ -236,10 +247,10 @@ input:checked ~ .slider::before {
 }
 
 .error-box {
-    background-color: #f8d7da;
-    border: 2px solid #f5c6cb;
+    background-color: var(--error-bg);
+    border: 2px solid var(--error-border);
     border-radius: var(--size-m);
-    color: var(--error);
+    color: var(--error-color);
     display: flex;
     flex-direction: column;
     gap: var(--size-m);
@@ -248,14 +259,14 @@ input:checked ~ .slider::before {
 }
 
 .error-title {
-    border-bottom: 1px solid var(--error);
+    border-bottom: 1px solid var(--error-color);
 }
 
 .success-box {
-    background-color: #d4edda;
-    border: 2px solid #c3e6cb;
+    background-color: var(--success-bg);
+    border: 2px solid var(--success-border);
     border-radius: var(--size-m);
-    color: #155724;
+    color: var(--success-color);
     display: flex;
     flex-direction: column;
     gap: var(--size-m);
@@ -264,7 +275,7 @@ input:checked ~ .slider::before {
 }
 
 .success-title {
-    border-bottom: 1px solid #155724;
+    border-bottom: 1px solid var(--success-color);
 }
 
 .loading-box {
@@ -318,6 +329,7 @@ input:checked ~ .slider::before {
 }
 
 .start-game-dialog {
+    border: none;
     border-radius: var(--size-m);
     margin: auto;
 }
@@ -331,7 +343,7 @@ dialog::backdrop {
     align-items: center;
     padding: var(--size-l);
     gap: var(--size-l);
-    border-bottom: 1px solid var(--light);
+    border-bottom: 1px solid var(--gray);
 }
 
 .dialog-close-btn {
@@ -393,6 +405,6 @@ dialog::backdrop {
     100% {
         top: 100vh;
         opacity: 0.7;
-        transform: translateX(0) rotateZ(720deg);
+        transform: translateX(var(--drift, 0px)) rotateZ(720deg);
     }
 }
