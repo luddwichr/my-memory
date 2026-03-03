@@ -59,7 +59,7 @@ function createGridElement(cards, cellClickHandler) {
         return createCellElement(card, pos, cellClickHandler)
     })
     const gridElement = createElement('div', ['grid'], {}, cellElements)
-    gridElement.style.gridTemplateColumns = `repeat(${cols}, 1fr)`
+    gridElement.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 150px))`
     return gridElement
 }
 
