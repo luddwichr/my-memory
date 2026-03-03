@@ -6,8 +6,8 @@
     --size-xxl: 32px;
     --gray: #888;
     --dark: #121212;
-    --primary: #3700b3;
     --light: rgba(255 255 255 / 87%);
+    --accent: #1c87c9;
     --error-color: #f48a95;
     --error-bg: #2d1b1d;
     --error-border: #5c2d32;
@@ -304,7 +304,7 @@ input:checked ~ .slider::before {
     animation: 1.5s linear infinite spinner;
     animation-play-state: inherit;
     border: solid 5px var(--light);
-    border-bottom-color: #1c87c9;
+    border-bottom-color: var(--accent);
     border-radius: 50%;
     content: "";
     height: 50px;
@@ -316,7 +316,7 @@ input:checked ~ .slider::before {
 
 .light .spinner::before {
     border: solid 5px var(--dark);
-    border-bottom-color: #1c87c9;
+    border-bottom-color: var(--accent);
 }
 
 @keyframes spinner {
