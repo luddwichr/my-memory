@@ -137,7 +137,14 @@ const cardSets = [
         id: 'country-flags',
         name: 'Country Flags',
         previewImage: './images/country-flags/69.svg',
-         cards: Array.from({length: 255}).map((_, idx) => `./images/country-flags/${idx}.svg`),
+        cards: Array.from({length: 255}).map((_, idx) => `./images/country-flags/${idx}.svg`),
+        levels: [4, 8, 16, 24, 36, 48, 64]
+    },
+        {
+        id: 'weather-icons',
+        name: 'Weather Icons',
+        previewImage: './images/weather-icons/170.svg',
+        cards: Array.from({length: 235}).map((_, idx) => `./images/weather-icons/${idx}.svg`),
         levels: [4, 8, 16, 24, 36, 48, 64]
     },
 ]

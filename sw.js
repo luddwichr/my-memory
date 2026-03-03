@@ -1,4 +1,4 @@
-const VERSION = "v4"
+const VERSION = "v5"
 const CACHE_NAME = `my-memory-${VERSION}`
 const INDEX_HTML_PATH = "./index.html"
 const APP_STATIC_RESOURCES = [
