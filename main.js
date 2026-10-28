@@ -1,3 +1,6 @@
+
+const BACKSIDE_IMAGE_PATH = './images/back-side.webp'
+
 function createElement(tagName, cssClasses, attributes, children = [], eventHandlers = {}) {
     const element = document.createElement(tagName)
     for (const cssClass of cssClasses) {
@@ -27,7 +30,7 @@ function createCardElement({imageSrc, alt}) {
 }
 
 function createCardBackSideElement() {
-    return createCardElement({imageSrc: './images/back-side.webp', alt: 'card back side'})
+    return createCardElement({imageSrc: BACKSIDE_IMAGE_PATH, alt: 'card back side'})
 }
 
 function createCellElement(card, pos, cellClickHandler) {
@@ -140,7 +143,7 @@ const cardSets = [
         cards: Array.from({length: 255}).map((_, idx) => `./images/country-flags/${idx}.svg`),
         levels: [4, 8, 16, 24, 36, 48, 64]
     },
-        {
+    {
         id: 'weather-icons',
         name: 'Weather Icons',
         previewImage: './images/weather-icons/170.svg',
@@ -420,7 +423,7 @@ async function init() {
         }
     }
     initControlArea()
-    if (await preloadImages(['./images/back-side.webp', ...cardSets.map(cardSet => cardSet.cards).flat()])) {
+    if (await preloadImages([BACKSIDE_IMAGE_PATH, ...cardSets.map(cardSet => cardSet.cards).flat()])) {
         if (!restoreGameState()) {
             startNewGame(cardSets[0])
         }
