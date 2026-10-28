@@ -150,6 +150,13 @@ const cardSets = [
         cards: Array.from({length: 235}).map((_, idx) => `./images/weather-icons/${idx}.svg`),
         levels: [4, 8, 16, 24, 36, 48, 64]
     },
+    {
+        id: 'baby',
+        name: 'Baby',
+        previewImage: './images/baby/0.webp',
+        cards: Array.from({length: 51}).map((_, idx) => `./images/baby/${idx}.webp`),
+        levels: [4, 8, 16, 24, 36, 48, 64]
+    },
 ]
 
 function saveGameState(gameState) {

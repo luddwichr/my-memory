@@ -1,0 +1,34 @@
+Images were downloaded on 28.10.2026 from https://github.com/microsoft/fluentui-emoji/tree/main/assets (3D variants, default skin tone) and converted using convert-images.sh
+
+Index to emoji mapping:
+0 Baby, 1 Baby bottle, 2 Teddy bear, 3 Baby chick, 4 Hatching chick, 5 Baby angel, 6 Baby symbol, 7 Pregnant woman,
+8 Breast feeding, 9 Person feeding baby, 10 Sleeping face, 11 Safety pin, 12 Bathtub, 13 Bubbles, 14 Child, 15 Sponge,
+16 Toothbrush, 17 Lotion bottle, 18 Socks, 19 Bowl with spoon, 20 Bed, 21 Nesting dolls, 22 Maracas, 23 Yo-yo, 24 Kite,
+25 Balloon, 26 Puzzle piece, 27 Glass of milk, 28 Abacus, 29 Crayon, 30 Drum, 31 Carousel horse, 32 Duck, 33 Ewe,
+34 Crescent moon, 35 Star, 36 Rainbow, 37 Rabbit, 38 People hugging, 39 Smiling face with hearts, 40 Wrapped gift,
+41 Birthday cake, 42 Musical notes, 43 Soccer ball, 44 Banana, 45 T-shirt, 46 Sun with face, 47 Red heart, 48 Elephant,
+49 Unicorn, 50 Panda
+
+https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE
+
+MIT License
+
+Copyright (c) Microsoft Corporation.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE
